@@ -38,24 +38,18 @@ class DemoCommand extends Command {
 	public function fire()
 	{
                 if ($this->argument('step') == 'sequence'){
-                    foreach($this->getStep() as $step){
+                    foreach($this->getStep() as $key => $step){
                         $this->printStep($step);
-                        if (!$this->confirm('Do you wish to continue? [y|n]')){
-                            break;
+                        if($key !== 'end'){
+                            if (!$this->confirm('Do you wish to continue? [y|n]')){
+                                break;
+                            }
                         }
                     }
                 }else{
                     $step = $this->getStep($this->argument('step'));
                     $this->printStep($step);
                 }
-            
-                /**Z
-                if($step['method'] == 'printPatternByStep'){
-                    $this->printPatternByStep($step['text'], $step['modulo'], $step['speed']);
-                }else{
-                    $this->printByStep($step['text'], $step['modulo'], $step['speed'], $step['style']);
-                }*/
-
 	}
         public function printStep($step) {
                 if($step['method'] == 'printPatternByStep'){
@@ -165,6 +159,9 @@ class DemoCommand extends Command {
             $step5  = "4) Passons à la pratique\n";
             $step5 .= "Voyons ce que l'on peut faire!.\n";
 
+            $step6  = "Merci à vous tous de m'avoir écouté.\n";
+            $step6 .= "Cette petite demo est disponible sur https://github.com/nhairic/laravel_command_demo.git .\n";
+
             $aStep = array(
                 0 => array('text' => $step0, 'method' => 'printPatternByStep', 'speed' => 050000000, 'modulo' => 56),
                 1 => array('text' => $step1, 'method' => 'printByStep', 'speed' => 070000000, 'modulo' => 60, 'style'=> 'comment'),
@@ -172,6 +169,7 @@ class DemoCommand extends Command {
                 3 => array('text' => $step3, 'method' => 'printByStep', 'speed' => 070000000, 'modulo' => 0, 'style'=> 'info'),
                 4 => array('text' => $step4, 'method' => 'printByStep', 'speed' => 070000000, 'modulo' => 0, 'style'=> 'info'),
                 5 => array('text' => $step5, 'method' => 'printByStep', 'speed' => 070000000, 'modulo' => 0, 'style'=> 'info'),
+                'end' => array('text' => $step6, 'method' => 'printByStep', 'speed' => 070000000, 'modulo' => 0, 'style'=> 'info'),
             );
             if($step == 'all'){
                 return $aStep;

@@ -110,7 +110,9 @@ class export extends Command {
                                         $array['user_name'] = $array['user']['name'];
                                         $array['user_email'] = $array['user']['email'];
                                         unset($array['user']);
-                                        fputcsv($fp , $array, $delimiter, $enclosure);  //$this->info($article->id);//
+                                        if(fputcsv($fp , $array, $delimiter, $enclosure) === false){
+                                            throw new Exception('csv has encountered a problem !');
+                                        }
                                     }
                                     fclose($fp);
                                 }else{
@@ -122,16 +124,18 @@ class export extends Command {
              * Supprime l'ancien fichier
              */
             $this->unlinkArticleExportFile();
+            $this->info(trans('export.export_begin'));
             Article::with('user')->ofGroup($id)->chunk(200, function($articles)
                             {
                                 switch(export::argument('format')){
                                     case 'csv' :
-                                    export::exportArticleToCSV($articles);
+                                        export::exportArticleToCSV($articles);
                                         break;
                                     default :
                                         throw new Exception('No method for ' . export::argument('format') . '');
                                 }
                             });
+            $this->info(trans('export.end_of_export'));
         }
         /**
          * 
