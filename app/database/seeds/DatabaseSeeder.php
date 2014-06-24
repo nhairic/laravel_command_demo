@@ -27,22 +27,25 @@ class GroupTableSeeder extends Seeder {
 	 */
 	public function run()
 	{
-                //DB::table('groups')->delete();
                 DB::table('groups')->truncate();
                 $administrator = array(
                     'name'          => 'Administrator',
+                    'identifier'    => 'administrator',
                     'description'   => 'Group of administrator'
                 );
                 $vip = array(
                     'name'          => 'VIP',
+                    'identifier'    => 'vip',
                     'description'   => 'User who have access to private site'
                 );
                 $moderator = array(
                     'name'          => 'Moderator',
+                    'identifier'    => 'moderator',
                     'description'   => 'Group of moderator'
                 );
                 $editor = array(
                     'name'          => 'Editor',
+                    'identifier'    => 'editor',
                     'description'   => 'Group of user who create article'
                 );
                 Group::create($administrator);
@@ -89,12 +92,10 @@ class ArticleTableSeeder extends Seeder {
      */
     public function run()
     {
-        //DB::table('articles')->delete();
         $users = User::all();
         $users = $users->toArray();
-        //var_dump($users);
         DB::table('articles')->truncate();
-        for($i=0; $i<1000; $i++){
+        for($i=0; $i<10000; $i++){
             $key = array_rand($users, 1);
             Article::create($this->createArticleData($users[$key]));
         }
@@ -153,7 +154,6 @@ class UserTableSeeder extends Seeder {
     public function run()
     {
         DB::table('users')->delete();
-        //DB::table('users')->truncate();
         User::create(array('name' => 'administrator', 'email' => 'broweteric@gmail.com'));
         for($i=0; $i<100; $i++){
             User::create($this->createUserData($i))->groups()->sync(array(rand(2,4)));

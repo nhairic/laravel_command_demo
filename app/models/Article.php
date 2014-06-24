@@ -23,6 +23,6 @@ class Article extends Eloquent{
                     ->join('users as u', 'articles.user_id', '=', 'u.id' )
                     ->join('group_user as gp', 'gp.user_id', '=', 'u.id' )
                     ->join('groups as gr', 'gr.id', '=', 'gp.group_id' )
-                    ->where('gr.id', $id);
+                    ->where('gr.identifier', $id);
         }
 }

@@ -157,7 +157,7 @@ class DemoCommand extends Command {
             $step4 .= "Pour pouvoir utiliser la commande il suffit de la renseigner dans le fichier ~app/start/artisan.phpµ.\n";
 
             $step5  = "4) Passons à la pratique\n";
-            $step5 .= "Voyons ce que l'on peut faire!.\n";
+            $step5 .= "Voyons ce que l'on peut faire!. Comme exercice nous prendrons l'exemple d'un export d'articles.\n";
 
             $step6  = "Merci à vous tous de m'avoir écouté.\n";
             $step6 .= "Cette petite demo est disponible sur https://github.com/nhairic/laravel_command_demo.git .\n";
