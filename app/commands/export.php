@@ -38,20 +38,9 @@ class export extends Command {
 	 */
 	public function fire()
 	{
-		$this->info('********************************************');
-		$this->info('*************** Data Export ****************');
-		$this->info('********************************************');
-		$this->comment('Parameters will be display');
-		$this->comment('A confirm will be ask');
-		$this->info('DataBase  : ' . DB::getDatabaseName());
-		$this->info('Host      : ' . DB::getConfig('host'));
-		$this->info('Path      : ' . $this->argument('path'));
-		$this->info('File Name : ' . $this->argument('fileName'));
-                $this->info('Export    : ' . $this->argument('export_identifier'));
-                $this->info('Parameter : ' . $this->argument('param'));
-		$this->info('============================================');
-                $opt1 = $this->option('opt');
-
+                ini_set('display_errors', 'on');
+                ini_set('error_reporting', 'all');
+                $this->printInfo();
 
                 if ($this->confirm('Do you wish to continue? [y|n]'))
                 {
@@ -61,7 +50,6 @@ class export extends Command {
                         if($this->argument('param') != ''){
                             $param = $this->argument('param');
                         }
-                            //($param);
                             call_user_func('export::' . $method, $param);
                         }
                         catch (Exception $e){
@@ -69,7 +57,26 @@ class export extends Command {
                         }
                 }
 	}
-
+        protected function printInfo(){
+                            $this->info('********************************************');
+		$this->info('*************** Data Export ****************');
+		$this->info('********************************************');
+		$this->comment('Parameters will be display');
+		$this->comment('A confirm will be ask');
+		$this->info('DataBase       : ' . DB::getDatabaseName());
+		$this->info('Host           : ' . DB::getConfig('host'));
+		$this->info('Path           : ' . $this->argument('path'));
+		$this->info('File Name      : ' . $this->argument('fileName'));
+                $this->info('Export         : ' . $this->argument('export_identifier'));
+                $this->info('Parameter      : ' . $this->argument('param'));
+                $this->info('Delimiter (csv): ' . $this->option('delimiter'));
+                $this->info('Enclosure (csv): ' . $this->option('enclosure'));
+                $opt = $this->option('opt');
+                if(!empty($opt)){
+                    $this->info('Opt: [' . implode(',', $opt) . ']');
+                }   
+		$this->info('============================================');
+        }
 	/**
 	 * Get the console command arguments.
 	 *
@@ -81,7 +88,7 @@ class export extends Command {
 			array('path'             , InputArgument::REQUIRED, 'Path to export file.'),
 			array('fileName'         , InputArgument::REQUIRED, 'Name of the file.'),
 			array('export_identifier', InputArgument::REQUIRED, 'Identifier of the expot\'s process .'),
-			array('format'           , InputArgument::OPTIONAL, 'Export format.', 'csv'),
+			array('format'           , InputArgument::OPTIONAL, 'Export format (csv, xml ...).', 'csv'),
 			array('param'            , InputArgument::OPTIONAL, 'Parameter for method.'),
 		);
 	}
@@ -94,12 +101,19 @@ class export extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('opt', 'opt', InputOption::VALUE_OPTIONAL|InputOption::VALUE_IS_ARRAY, 'An array option.', array()),
+			array('opt', 'o', InputOption::VALUE_OPTIONAL|InputOption::VALUE_IS_ARRAY, 'An array option.', array()),
+			array('enclosure', 'e', InputOption::VALUE_OPTIONAL, 'Enclosure for csv export.', '"'),
+			array('delimiter', 'd', InputOption::VALUE_OPTIONAL, 'Delimiter for csv export', ';'),
 		);
 	}
+        /**
+         * 
+         * @param type $articles
+         * @throws Exception
+         */
         public function exportArticleToCSV(&$articles){
-                                $delimiter = ';';
-                                $enclosure = '"';
+                                $delimiter = export::option('delimiter');
+                                $enclosure = export::option('enclosure');
                                 $filename  = $this->createArticleExportFileName();
                                 $fp        = fopen($filename, 'a+');
                                 if($fp)
@@ -119,12 +133,17 @@ class export extends Command {
                                     throw new Exception('Cannot create csv file');
                                 }
         }
+        /**
+         * 
+         * @param int $id
+         */
         public function exportArticle($id){
             /**
              * Supprime l'ancien fichier
              */
             $this->unlinkArticleExportFile();
             $this->info(trans('export.export_begin'));
+            
             Article::with('user')->ofGroup($id)->chunk(200, function($articles)
                             {
                                 switch(export::argument('format')){
@@ -138,7 +157,7 @@ class export extends Command {
             $this->info(trans('export.end_of_export'));
         }
         /**
-         * 
+         * return void
          */
         protected function unlinkArticleExportFile(){
             $filename =  $this->createArticleExportFileName();
@@ -148,7 +167,7 @@ class export extends Command {
         }
         /**
          * 
-         * @return type
+         * @return string
          */
         protected function createArticleExportFileName(){
             $path       = export::argument('path');
